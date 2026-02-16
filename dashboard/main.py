@@ -3,12 +3,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 from babel.numbers import format_currency
+import os
 
 sns.set(style='whitegrid')
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("main_data.csv")
+    current_dir = os.path.dirname(__file__)
+    file_path = os.path.join(current_dir, "main_data.csv")
+    
+    df = pd.read_csv(file_path)
     df['dteday'] = pd.to_datetime(df['dteday'])
     return df
 
@@ -144,6 +148,7 @@ fig_pie, ax_pie = plt.subplots(figsize=(6, 6))
 ax_pie.pie(user_counts, labels=user_labels, autopct='%1.1f%%', colors=['#ff9999','#66b3ff'], startangle=140)
 ax_pie.axis('equal')  # Agar bentuknya lingkaran sempurna
 st.pyplot(fig_pie)
+
 
 
 
