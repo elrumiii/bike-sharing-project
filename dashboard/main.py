@@ -10,7 +10,7 @@ sns.set(style='whitegrid')
 @st.cache_data
 def load_data():
     current_dir = os.path.dirname(__file__)
-    file_path = os.path.join(current_dir, "main_data.csv")
+    file_path = os.path.join(current_dir, "main_data(1).csv")
     
     df = pd.read_csv(file_path)
     df['dteday'] = pd.to_datetime(df['dteday'])
@@ -105,40 +105,35 @@ with st.container():
     st.pyplot(fig)
 
 with st.expander("Insight"):
-    st.write(""" Berdasarkan kedua visualisasi tersebut, dapat disimpulkan bahwa penggunaan sepeda mencapai puncaknya pada jam berangkat (08:00) dan pulang kantor (17:00) di hari kerja, sedangkan pada hari libur penggunaan cenderung stabil dengan puncak tunggal di siang hari (12:00-15:00) untuk aktivitas rekreasi.""")
+    st.write(""" Hasil analisis menunjukkan adanya perbedaan pola konsumsi yang kontras antara hari kerja dan hari libur, di mana hari kerja didominasi oleh pola komuter dengan dua puncak utama (rush hour) pada pukul 08:00 dan 17:00, sementara hari libur mencerminkan pola rekreasi dengan lonjakan permintaan yang stabil di tengah hari antara pukul 12:00 hingga 15:00. Temuan ini memberikan implikasi strategis bagi perusahaan untuk melakukan optimalisasi stok melalui distribusi unit maksimal di area residensial pada pagi hari kerja serta area perkantoran pada sore hari guna menangkap peluang permintaan tertinggi. Selain itu, perusahaan dapat meningkatkan efisiensi operasional dengan menjadwalkan perawatan sepeda (maintenance) pada jendela waktu rendah permintaan, yaitu pukul 10:00–14:00 di hari kerja dan sebelum pukul 10:00 di hari libur, guna memastikan ketersediaan unit tetap prima saat memasuki jam-jam sibuk..""")
 
-st.subheader("Apakah Kecepatan Angin Menurunkan Minat Sewa?")
+st.subheader("Pengaruh Kecepatan Angin terhadap Jumlah Penyewaan")
 
 with st.container():
-    bins = [0, 0.1, 0.3, 0.5, 1.0]
-    labels = ['Rendah', 'Sedang', 'Tinggi', 'Ekstrem']
-    filtered_df['wind_category'] = pd.cut(filtered_df['windspeed'], bins=bins, labels=labels)
-
-# 2. Membuat Visualisasi Bar Chart
     fig, ax = plt.subplots(figsize=(10, 6))
+    category_order = ['Rendah', 'Sedang', 'Tinggi', 'Ekstrem']
     sns.barplot(
-    data=filtered_df, 
-    x='wind_category', 
+    data=day_df, 
+    x='windspeed_category', 
     y='cnt', 
-    palette='Blues_d', 
-    estimator='mean',
-    capsize=.1,
-    ax=ax
-)
+    order=category_order, 
+    hue='windspeed_category', 
+    palette='Reds_r',
+    legend=False,            
+    errorbar=None,
+    ax=ax # Penting: masukkan ke axis yang sudah dibuat
+    )
 
-# 3. Merapikan Tampilan
-    ax.set_title('Rata-rata Penyewaan Sepeda Berdasarkan Kategori Kecepatan Angin', fontsize=14)
+    ax.set_title('Pengaruh Kategori Kecepatan Angin terhadap Jumlah Penyewaan', fontsize=14)
     ax.set_xlabel('Kategori Kecepatan Angin', fontsize=12)
-    ax.set_ylabel('Rata-rata Jumlah Penyewa', fontsize=12)
-    ax.grid(axis='y', linestyle='--', alpha=0.5)
+    ax.set_ylabel('Rata-rata Jumlah Penyewaan', fontsize=12)
 
-# 4. Tampilkan di Streamlit
+# Menampilkan di Streamlit
     st.pyplot(fig)
-
 
 with st.expander("insight"):
     st.write("""
-    Berdasarkan bar chart tersebut, terlihat bahwa minat penyewaan sepeda tetap tinggi dan stabil pada kategori kecepatan angin Rendah hingga Sedang, bahkan seringkali mencapai puncaknya pada kondisi angin sedang karena biasanya dibarengi dengan suhu udara yang sejuk. Namun, terjadi penurunan jumlah penyewaan yang cukup terlihat saat angin memasuki kategori Tinggi, dan menurun sangat signifikan pada kategori Ekstrem. Hal ini membuktikan bahwa kecepatan angin memang menurunkan minat penyewa, tetapi efeknya baru terasa sangat drastis ketika angin sudah mencapai level yang mengganggu kenyamanan berkendara atau stabilitas sepeda di jalan.""")
+    Berdasarkan hasil analisis, ditemukan bahwa kecepatan angin memiliki korelasi negatif yang nyata terhadap minat pengguna, di mana terjadi penurunan drastis jumlah penyewaan saat kondisi berpindah dari kategori 'Sedang' ke 'Tinggi' dan 'Ekstrem'. Hal ini menunjukkan bahwa faktor keamanan serta kenyamanan menjadi prioritas utama bagi pengguna dalam memutuskan untuk bersepeda. Sebagai langkah strategis, perusahaan dapat menerapkan kebijakan dynamic pricing berupa pemberian promo atau diskon otomatis saat sensor cuaca mendeteksi angin kategori 'Sedang' hingga 'Tinggi' guna menstimulasi permintaan yang cenderung menurun. Selain itu, integrasi sistem peringatan dini (safety alert) pada aplikasi untuk memberikan notifikasi keamanan saat angin kencang dapat meningkatkan kepercayaan dan loyalitas pelanggan. Terakhir, dari sisi efisiensi biaya, perusahaan dapat mengoptimalkan pengeluaran dengan mengurangi jumlah staf lapangan atau operasional truk penyeimbang (rebalancing truck) pada hari-hari dengan prakiraan angin 'Ekstrem', mengingat volume transaksi dipastikan rendah pada kondisi tersebut.""")
 
 st.subheader("Komposisi Pengguna")
 user_counts = [filtered_df.casual.sum(), filtered_df.registered.sum()]
@@ -148,6 +143,7 @@ fig_pie, ax_pie = plt.subplots(figsize=(6, 6))
 ax_pie.pie(user_counts, labels=user_labels, autopct='%1.1f%%', colors=['#ff9999','#66b3ff'], startangle=140)
 ax_pie.axis('equal')  # Agar bentuknya lingkaran sempurna
 st.pyplot(fig_pie)
+
 
 
 
